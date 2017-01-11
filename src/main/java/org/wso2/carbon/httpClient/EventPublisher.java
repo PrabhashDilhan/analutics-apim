@@ -1,83 +1,16 @@
 package org.wso2.carbon.httpClient;
 
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.SystemDefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
-import com.google.gson.JsonObject;
+import org.wso2.carbon.httpClient.httpClientCore.HttpClient;
 
 public class EventPublisher {
-    /**
-     * URL of the event receiver.
-     */
-    private static final String URL = "http://localhost:9764/endpoints/pattern_matching_for_wso2_log_analyzer";
+    String eventstr;
 
-    public static void main(String[] args) {
-        // Create an HTTP client.
-        HttpClient httpClient = new SystemDefaultHttpClient();
+    public EventPublisher(){
 
-        // Create a POST method using the receiver URL.
-        HttpPost method = new HttpPost(URL);
-
-        // Create a JsonObject for the event.
-        JsonObject event = new JsonObject();
-
-        // Create another JsonObject for pay-load data.
-        JsonObject payLoadData = new JsonObject();
-
-        // Set the temperature.
-        payLoadData.addProperty("id", 1);
-        payLoadData.addProperty("pattern", "1:2-4:2-6:1");
-
-        event.add("payloadData", payLoadData);
-
-        // Convert the JsonObject to String.
-        String eventString = "{\"event\": " + event + "}";
-
-        try {
-            // Create an entity and add it to the method.
-            StringEntity entity = new StringEntity(eventString);
-            method.setEntity(entity);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            // Execute the method and retrieve the response.
-            HttpResponse response = httpClient.execute(method);
-
-            // Get the entity out of the response.
-            HttpEntity httpEntity = response.getEntity();
-
-            int status = response.getStatusLine().getStatusCode();
-
-            // Check the status code for successful completion.
-            if (status == 200) {
-                System.out.println("Published");
-            } else {
-                System.out.println("Failed to publish");
-            }
-
-            // Close the connection and release the resources.
-            try {
-                EntityUtils.consume(httpEntity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    }
+    public void publishEvents(String srt){
+        this.eventstr = srt;
+        HttpClient httpclient = new HttpClient(eventstr);
+        httpclient.postEvent();
     }
 }
